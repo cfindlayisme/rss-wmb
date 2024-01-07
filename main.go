@@ -51,10 +51,6 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 	}
 	feedItemsNew := make(map[string]bool)
 
-	if err != nil {
-		fmt.Printf("Error reading feed items from file: %s\n", err)
-	}
-
 	// Iterate over the feed URLs
 	for n, url := range feedURLs {
 		// Parse the RSS feed
