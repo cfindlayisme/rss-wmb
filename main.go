@@ -91,7 +91,7 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 					log.Fatalf("Error marshalling webhookDirectedMessage: %v", err)
 				}
 
-				//fmt.Printf("JSON Data: %s\n", jsonData)
+				fmt.Printf("JSON Data: %s\n", jsonData)
 
 				// Send a POST request to the webhook URL
 				resp, err := http.Post(os.Getenv("WMB_DIRECT_MESSAGE_URL"), "application/json", bytes.NewBuffer(jsonData))
@@ -128,7 +128,7 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 
 // Function to read the feed items from a file
 func readFeedItemsFromFile() (map[string]bool, error) {
-	filePath := "feedItemsState.json"
+	filePath := os.Getenv("STATEFILE")
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -148,7 +148,7 @@ func readFeedItemsFromFile() (map[string]bool, error) {
 
 // Function to write the feed items to a file
 func writeFeedItemsToFile(feedItems map[string]bool) error {
-	filePath := "feedItemsState.json"
+	filePath := os.Getenv("STATEFILE")
 	file, err := os.Create(filePath)
 	if err != nil {
 		return err
