@@ -47,7 +47,6 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 	feedItems, err := readFeedItemsFromFile()
 	if err != nil {
 		fmt.Printf("Error reading feed items from file: %s\n", err)
-		return
 	}
 	feedItemsNew := make(map[string]bool)
 
