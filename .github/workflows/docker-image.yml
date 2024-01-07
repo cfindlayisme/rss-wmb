@@ -84,21 +84,21 @@ jobs:
         curl -X POST -H "Content-Type: application/json" -d "{\"message\": \"$MESSAGE\", \"password\": \"${{ secrets.WMB_PASSWORD }}\", \"colourcode\": 4}" https://convos.findlayis.me/wmb/message
       if: failure()
 
-  # deploy:
-  #   needs: [build]
+  deploy:
+    needs: [build]
 
-  #   runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-  #   steps:
+    steps:
 
-  #   - name: Deploy image to production
-  #     uses: appleboy/ssh-action@master
-  #     with:
-  #       host: ${{ secrets.SSH_HOST }}
-  #       username: ${{ secrets.SSH_USERNAME }}
-  #       key: ${{ secrets.SSH_SECRET }}
-  #       port: 22
-  #       script: |
-  #         cd /srv/rss-wmb
-  #         docker compose pull
-  #         docker compose up -d
+    - name: Deploy image to production
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_SECRET }}
+        port: 22
+        script: |
+          cd /srv/rss-wmb
+          docker compose pull
+          docker compose up -d
