@@ -1,4 +1,5 @@
 rss-wmb
 feedItemsState.json
+feedItems.db
 __debug*
 .vscode/launch.json
