@@ -45,7 +45,7 @@ func WriteFeedItemsToDB(feedItemsNew map[string]bool) {
 	defer db.Close()
 
 	// Create the table if it doesn't exist
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS FeedItems (Link TEXT PRIMARY KEY, Printed BOOLEAN)")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS FeedItems (Link TEXT PRIMARY KEY, Printed BOOLEAN, Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
 	if err != nil {
 		log.Fatalf("Error creating table: %v", err)
 	}
