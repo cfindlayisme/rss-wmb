@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cfindlayisme/rss-wmb/db"
 	"github.com/cfindlayisme/rss-wmb/model"
 	"github.com/mmcdole/gofeed"
 )
@@ -41,11 +42,6 @@ func main() {
 
 // Function to check RSS feeds
 func checkFeeds(feedChannels []string, feedURLs []string) {
-	// Read the feed items from a file
-	feedItems, err := readFeedItemsFromFile()
-	if err != nil {
-		fmt.Printf("Error reading feed items from file: %s\n", err)
-	}
 	feedItemsNew := make(map[string]bool)
 
 	// Iterate over the feed URLs
@@ -64,7 +60,7 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 		// Print the feed items
 		for _, item := range feed.Items {
 			// Check if the feed item has already been printed
-			if !feedItems[item.Link] {
+			if !db.GetIfLinkPrintedInDB(item.Link) {
 				fmt.Printf("Title: %s\n", item.Title)
 				fmt.Println("--------------------")
 
@@ -110,50 +106,6 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 	}
 
 	if len(feedItemsNew) != 0 {
-		maps.Copy(feedItemsNew, feedItems)
-		// Write the feed items to a file
-		err = writeFeedItemsToFile(feedItemsNew)
-		if err != nil {
-			fmt.Printf("Error writing feed items to file: %s\n", err)
-		}
+		db.WriteFeedItemsToDB(feedItemsNew)
 	}
-}
-
-// Function to read the feed items from a file
-func readFeedItemsFromFile() (map[string]bool, error) {
-	filePath := os.Getenv("STATEFILE")
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	var feedItems map[string]bool
-	err = json.NewDecoder(file).Decode(&feedItems)
-	if err != nil {
-		return nil, err
-	}
-
-	fmt.Println("Successfully read", len(feedItems), "feed items from file")
-
-	return feedItems, nil
-}
-
-// Function to write the feed items to a file
-func writeFeedItemsToFile(feedItems map[string]bool) error {
-	filePath := os.Getenv("STATEFILE")
-	file, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	err = json.NewEncoder(file).Encode(feedItems)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Successfully wrote", len(feedItems), "feed items to file")
-
-	return nil
 }
