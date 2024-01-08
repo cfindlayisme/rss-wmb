@@ -23,7 +23,7 @@ func main() {
 	feedChannels := strings.Split(os.Getenv("FEED_CHANNELS"), ",")
 
 	checkFeeds(feedChannels, feedURLs)
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(15 * time.Minute)
 
 	// Start a goroutine to check RSS feeds periodically
 	go func() {
