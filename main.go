@@ -6,13 +6,12 @@ import (
 )
 
 func main() {
-	// Define the RSS feed URLs
 	feedURLs := env.GetFeedUrls()
-
 	feedChannels := env.GetFeedChannels()
+	scheduledDuration := env.GetScheduledMinutes()
 
 	rss.CheckFeeds(feedChannels, feedURLs)
-	rss.ScheduleFeeds(env.GetScheduledMinutes(), feedChannels, feedURLs)
+	rss.ScheduleFeeds(scheduledDuration, feedChannels, feedURLs)
 
 	// Keep the main goroutine running
 	select {}
