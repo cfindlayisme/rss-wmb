@@ -3,6 +3,7 @@ package env
 import (
 	"os"
 	"strings"
+	"time"
 )
 
 func GetFeedUrls() []string {
@@ -23,4 +24,8 @@ func GetWMBURL() string {
 
 func GetStateFilePath() string {
 	return os.Getenv("STATEFILE")
+}
+
+func GetScheduledMinutes() time.Duration {
+	return 5 * time.Minute // static for now
 }

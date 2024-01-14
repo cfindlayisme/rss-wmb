@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/cfindlayisme/rss-wmb/env"
 	"github.com/cfindlayisme/rss-wmb/rss"
 )
@@ -14,7 +12,7 @@ func main() {
 	feedChannels := env.GetFeedChannels()
 
 	rss.CheckFeeds(feedChannels, feedURLs)
-	rss.ScheduleFeeds(5*time.Minute, feedChannels, feedURLs)
+	rss.ScheduleFeeds(env.GetScheduledMinutes(), feedChannels, feedURLs)
 
 	// Keep the main goroutine running
 	select {}
