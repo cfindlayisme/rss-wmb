@@ -14,17 +14,7 @@ func main() {
 	feedChannels := env.GetFeedChannels()
 
 	rss.CheckFeeds(feedChannels, feedURLs)
-	ticker := time.NewTicker(5 * time.Minute)
-
-	// Start a goroutine to check RSS feeds periodically
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				rss.CheckFeeds(feedChannels, feedURLs)
-			}
-		}
-	}()
+	rss.ScheduleFeeds(5*time.Minute, feedChannels, feedURLs)
 
 	// Keep the main goroutine running
 	select {}

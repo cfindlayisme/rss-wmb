@@ -7,6 +7,7 @@ import (
 	"log"
 	"maps"
 	"net/http"
+	"time"
 
 	"github.com/cfindlayisme/rss-wmb/db"
 	"github.com/cfindlayisme/rss-wmb/env"
@@ -81,4 +82,17 @@ func CheckFeeds(feedChannels []string, feedURLs []string) {
 	if len(feedItemsNew) != 0 {
 		db.WriteFeedItemsToDB(feedItemsNew)
 	}
+}
+
+func ScheduleFeeds(scheduledDuration time.Duration, feedChannels []string, feedURLs []string) {
+	ticker := time.NewTicker(scheduledDuration)
+
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				CheckFeeds(feedChannels, feedURLs)
+			}
+		}
+	}()
 }
