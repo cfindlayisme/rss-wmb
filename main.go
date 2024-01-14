@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"maps"
@@ -49,7 +48,7 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 		fp := gofeed.NewParser()
 		feed, err := fp.ParseURL(url)
 		if err != nil {
-			fmt.Printf("Error parsing RSS feed: %s\n", err)
+			log.Printf("Error parsing RSS feed: %s\n", err)
 			continue
 		}
 
@@ -60,8 +59,8 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 		for _, item := range feed.Items {
 			// Check if the feed item has already been printed
 			if !db.GetIfLinkPrintedInDB(item.Link) {
-				fmt.Printf("Title: %s\n", item.Title)
-				fmt.Println("--------------------")
+				log.Printf("Title: %s\n", item.Title)
+				log.Println("--------------------")
 
 				// Create a new WebhookMessage
 				webhookMessage := model.WebhookMessage{
@@ -79,7 +78,7 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 					log.Fatalf("Error marshalling webhookDirectedMessage: %v", err)
 				}
 
-				fmt.Printf("JSON Data: %s\n", jsonData)
+				log.Printf("JSON Data: %s\n", jsonData)
 
 				// Send a POST request to the webhook URL
 				resp, err := http.Post(env.GetWMBURL(), "application/json", bytes.NewBuffer(jsonData))
@@ -94,7 +93,7 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 				}
 
 				// Print the response body
-				fmt.Printf("Response: %s\n", body)
+				log.Printf("Response: %s\n", body)
 				defer resp.Body.Close()
 
 				// Mark the feed item as printed
