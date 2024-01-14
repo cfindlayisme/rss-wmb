@@ -9,19 +9,19 @@ import (
 	"maps"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/cfindlayisme/rss-wmb/db"
+	"github.com/cfindlayisme/rss-wmb/env"
 	"github.com/cfindlayisme/rss-wmb/model"
 	"github.com/mmcdole/gofeed"
 )
 
 func main() {
 	// Define the RSS feed URLs
-	feedURLs := strings.Split(os.Getenv("FEED_URLS"), ",")
+	feedURLs := env.GetFeedUrls()
 
-	feedChannels := strings.Split(os.Getenv("FEED_CHANNELS"), ",")
+	feedChannels := env.GetFeedChannels()
 
 	checkFeeds(feedChannels, feedURLs)
 	ticker := time.NewTicker(5 * time.Minute)
