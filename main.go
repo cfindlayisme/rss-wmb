@@ -8,7 +8,6 @@ import (
 	"log"
 	"maps"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/cfindlayisme/rss-wmb/db"
@@ -67,7 +66,7 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 				// Create a new WebhookMessage
 				webhookMessage := model.WebhookMessage{
 					Message:  "Title: " + item.Title + " Link: " + item.Link,
-					Password: os.Getenv("PASSWORD"),
+					Password: env.GetWMBPassword(),
 				}
 
 				webhookDirectedMessage := model.DirectedWebhookMessage{
@@ -83,7 +82,7 @@ func checkFeeds(feedChannels []string, feedURLs []string) {
 				fmt.Printf("JSON Data: %s\n", jsonData)
 
 				// Send a POST request to the webhook URL
-				resp, err := http.Post(os.Getenv("WMB_DIRECT_MESSAGE_URL"), "application/json", bytes.NewBuffer(jsonData))
+				resp, err := http.Post(env.GetWMBURL(), "application/json", bytes.NewBuffer(jsonData))
 				if err != nil {
 					log.Fatalf("Error sending webhook: %v", err)
 				}

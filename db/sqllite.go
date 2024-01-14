@@ -3,14 +3,15 @@ package db
 import (
 	"database/sql"
 	"log"
-	"os"
+
+	"github.com/cfindlayisme/rss-wmb/env"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func GetIfLinkPrintedInDB(link string) bool {
 	// Open the SQLite database
-	db, err := sql.Open("sqlite3", os.Getenv("STATEFILE"))
+	db, err := sql.Open("sqlite3", env.GetStateFilePath())
 	if err != nil {
 		return false
 	}
@@ -38,7 +39,7 @@ func GetIfLinkPrintedInDB(link string) bool {
 
 func WriteFeedItemsToDB(feedItemsNew map[string]bool) {
 	// Open the SQLite database
-	db, err := sql.Open("sqlite3", os.Getenv("STATEFILE"))
+	db, err := sql.Open("sqlite3", env.GetStateFilePath())
 	if err != nil {
 		log.Fatalf("Error opening SQLite database: %v", err)
 	}
