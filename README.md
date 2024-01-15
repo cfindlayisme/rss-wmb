@@ -1,4 +1,9 @@
-Quite simply, this takes RSS feeds and checks them often, then sends the title and link to a channel on IRC through my wmb bot. Work in progress, not intended to be used by others yet.
+Quite simply, this takes RSS feeds and checks them often, then sends the title and link to a channel on IRC through my wmb bot. 
+
+## TODO
+- Check feeds in a slightly more staggered manner
+- Cleanup the sqlite db on an interval
+- Flesh out this README more
 
 ## Enviorment Variables
 - `FEED_URLS` - A comma seperated list of RSS feed urls
