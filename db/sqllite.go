@@ -18,7 +18,7 @@ func GetIfLinkPrintedInDB(link string) bool {
 	defer db.Close()
 
 	// Query the database
-	rows, err := db.Query("SELECT Link FROM FeedItems WHERE Link = ?", link)
+	rows, err := db.Query("SELECT Link FROM FeedItems WHERE Link = ? AND Printed = 1", link)
 	if err != nil {
 		return false
 	}
