@@ -18,6 +18,8 @@ func main() {
 
 	// Once per day cleanup DB (also at start)
 	go func() {
+		db.CleanDB()
+
 		for range time.Tick(24 * time.Hour) {
 			db.CleanDB()
 		}
