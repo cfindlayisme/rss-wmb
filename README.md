@@ -4,6 +4,7 @@ Quite simply, this takes RSS feeds and checks them often, then sends the title a
 - Check feeds in a slightly more staggered manner
 - Cleanup the sqlite db on an interval
 - Flesh out this README more
+- Probably a race condition in CleanupDB with the scheduled feed check in terms of the database locking - should check this out
 
 ## Enviorment Variables
 - `FEED_URLS` - A comma seperated list of RSS feed urls
