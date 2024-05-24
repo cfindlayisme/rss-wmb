@@ -19,7 +19,7 @@ func SendDirectedRSSMessage(url string, item *gofeed.Item, feedChannels []string
 
 	// Create a new WebhookMessage
 	webhookMessage := model.WebhookMessage{
-		Message:  "Title: " + item.Title + " Link: " + item.Link,
+		Message:  "\x0311Title:\x03 " + item.Title + " \x0309Link:\x03 " + item.Link,
 		Password: env.GetWMBPassword(),
 	}
 
