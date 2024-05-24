@@ -7,6 +7,7 @@ Quite simply, this takes RSS feeds and checks them often, then sends the title a
   - [x] Test wmb package
   - [ ] Test rss package
   - [ ] Test db package
+  - [x] Test env package
 - [ ] Probably a race condition in CleanupDB with the scheduled feed check in terms of the database locking - should check this out
 
 ## Enviorment Variables
