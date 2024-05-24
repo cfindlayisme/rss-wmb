@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/cfindlayisme/rss-wmb/db"
+	"github.com/cfindlayisme/rss-wmb/env"
 	"github.com/cfindlayisme/rss-wmb/wmb"
 	"github.com/mmcdole/gofeed"
 )
@@ -26,7 +27,7 @@ func CheckFeeds(feedChannels []string, feedURLs []string) {
 
 		for _, item := range feed.Items {
 			if !db.GetIfLinkPrintedInDB(item.Link) {
-				wmb.SendDirectedRSSMessage(item, feedChannels, n)
+				wmb.SendDirectedRSSMessage(env.GetWMBURL(), item, feedChannels, n)
 
 				// Mark the feed item as printed
 				updatedFeedItems[item.Link] = true

@@ -3,6 +3,7 @@ package wmb
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-func SendDirectedRSSMessage(item *gofeed.Item, feedChannels []string, n int) {
+func SendDirectedRSSMessage(url string, item *gofeed.Item, feedChannels []string, n int) error {
 	log.Printf("Title: %s\n", item.Title)
 	log.Println("--------------------")
 
@@ -29,24 +30,26 @@ func SendDirectedRSSMessage(item *gofeed.Item, feedChannels []string, n int) {
 
 	jsonData, err := json.Marshal(webhookDirectedMessage)
 	if err != nil {
-		log.Fatalf("Error marshalling webhookDirectedMessage: %v", err)
+		return fmt.Errorf("error marshalling webhookDirectedMessage: %v", err)
 	}
 
 	log.Printf("JSON Data: %s\n", jsonData)
 
 	// Send a POST request to the webhook URL
-	resp, err := http.Post(env.GetWMBURL(), "application/json", bytes.NewBuffer(jsonData))
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Fatalf("Error sending webhook: %v", err)
+		return fmt.Errorf("error sending webhook: %v", err)
 	}
 	// Read the response body
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalf("Error reading response body: %v", err)
+		return fmt.Errorf("error reading response body: %v", err)
 	}
 
 	// Print the response body
 	log.Printf("Response: %s\n", body)
 	defer resp.Body.Close()
+
+	return nil
 }
