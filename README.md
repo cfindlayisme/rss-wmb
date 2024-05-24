@@ -1,10 +1,13 @@
 Quite simply, this takes RSS feeds and checks them often, then sends the title and link to a channel on IRC through my wmb bot. 
 
 ## TODO
-- Check feeds in a slightly more staggered manner
-- Cleanup the sqlite db on an interval
-- Flesh out this README more
-- Probably a race condition in CleanupDB with the scheduled feed check in terms of the database locking - should check this out
+- [ ] Check feeds in a slightly more staggered manner
+- [ ] Flesh out this README more
+- [ ] Write tests
+  - [x] Test wmb package
+  - [ ] Test rss package
+  - [ ] Test db package
+- [ ] Probably a race condition in CleanupDB with the scheduled feed check in terms of the database locking - should check this out
 
 ## Enviorment Variables
 - `FEED_URLS` - A comma seperated list of RSS feed urls
