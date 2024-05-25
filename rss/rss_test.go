@@ -73,3 +73,43 @@ func TestScheduleFeedsCalledRepeatedly(t *testing.T) {
 	// Test that CheckFeeds was called again
 	require.True(t, mock.called)
 }
+
+func TestCheckFeedsNilDatabase(t *testing.T) {
+	mock := &mockFeedChecker{}
+	scheduler := &rss.Scheduler{FeedChecker: mock}
+
+	scheduler.CheckFeeds(nil, []string{"channel"}, []string{"url"})
+
+	// Test that CheckFeeds was called with a nil database
+	require.Nil(t, mock.database)
+}
+
+func TestCheckFeedsEmptyChannelsAndURLs(t *testing.T) {
+	mock := &mockFeedChecker{}
+	scheduler := &rss.Scheduler{FeedChecker: mock}
+
+	scheduler.CheckFeeds(&db.DB{}, []string{}, []string{})
+
+	// Test that CheckFeeds was called with empty channels and URLs
+	require.Empty(t, mock.channels)
+	require.Empty(t, mock.urls)
+}
+
+func TestScheduleFeedsZeroDuration(t *testing.T) {
+	mock := &mockFeedChecker{}
+	scheduler := &rss.Scheduler{FeedChecker: mock}
+
+	scheduler.ScheduleFeeds(&db.DB{}, 0, []string{"channel"}, []string{"url"})
+
+	time.Sleep(10 * time.Millisecond)
+
+	// Test that CheckFeeds was not called
+	require.False(t, mock.called)
+}
+
+func TestNewScheduler(t *testing.T) {
+	scheduler := rss.NewScheduler()
+
+	// Test that NewScheduler returns a Scheduler with a DefaultFeedChecker
+	require.IsType(t, &rss.DefaultFeedChecker{}, scheduler.FeedChecker)
+}

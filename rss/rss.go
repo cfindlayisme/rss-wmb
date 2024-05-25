@@ -24,6 +24,11 @@ func (s *Scheduler) CheckFeeds(database *db.DB, feedChannels []string, feedURLs 
 }
 
 func (s *Scheduler) ScheduleFeeds(database *db.DB, d time.Duration, feedChannels []string, feedURLs []string) {
+	if d <= 0 {
+		log.Println("Error: non-positive interval for NewTicker")
+		return
+	}
+
 	ticker := time.NewTicker(d)
 
 	go func() {
