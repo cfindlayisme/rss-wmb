@@ -20,8 +20,9 @@ func main() {
 		log.Fatalf("Error opening database: %v", err)
 	}
 
-	rss.CheckFeeds(database, feedChannels, feedURLs)
-	rss.ScheduleFeeds(database, scheduledDuration, feedChannels, feedURLs)
+	scheduler := rss.NewScheduler()
+	scheduler.CheckFeeds(database, feedChannels, feedURLs)
+	scheduler.ScheduleFeeds(database, scheduledDuration, feedChannels, feedURLs)
 
 	// Once per day cleanup DB (also at start)
 	go func() {

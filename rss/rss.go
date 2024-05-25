@@ -11,7 +11,35 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-func CheckFeeds(database *db.DB, feedChannels []string, feedURLs []string) {
+type FeedChecker interface {
+	CheckFeeds(database *db.DB, feedChannels []string, feedURLs []string)
+}
+
+type Scheduler struct {
+	FeedChecker FeedChecker
+}
+
+func (s *Scheduler) CheckFeeds(database *db.DB, feedChannels []string, feedURLs []string) {
+	s.FeedChecker.CheckFeeds(database, feedChannels, feedURLs)
+}
+
+func (s *Scheduler) ScheduleFeeds(database *db.DB, d time.Duration, feedChannels []string, feedURLs []string) {
+	ticker := time.NewTicker(d)
+
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				s.FeedChecker.CheckFeeds(database, feedChannels, feedURLs)
+			}
+		}
+	}()
+}
+
+type DefaultFeedChecker struct{}
+
+func (d *DefaultFeedChecker) CheckFeeds(database *db.DB, feedChannels []string, feedURLs []string) {
+	// Implement the feed checking logic here
 	feedItemsNew := make(map[string]bool)
 
 	for n, url := range feedURLs {
@@ -42,35 +70,7 @@ func CheckFeeds(database *db.DB, feedChannels []string, feedURLs []string) {
 	}
 }
 
-type FeedChecker interface {
-	CheckFeeds(database *db.DB, feedChannels []string, feedURLs []string)
-}
-
-type Scheduler struct {
-	FeedChecker FeedChecker
-}
-
-func (s *Scheduler) ScheduleFeeds(database *db.DB, d time.Duration, feedChannels []string, feedURLs []string) {
-	ticker := time.NewTicker(d)
-
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				s.FeedChecker.CheckFeeds(database, feedChannels, feedURLs)
-			}
-		}
-	}()
-}
-
-type DefaultFeedChecker struct{}
-
-func (d *DefaultFeedChecker) CheckFeeds(database *db.DB, feedChannels []string, feedURLs []string) {
-	CheckFeeds(database, feedChannels, feedURLs)
-}
-
-func ScheduleFeeds(database *db.DB, d time.Duration, feedChannels []string, feedURLs []string) {
+func NewScheduler() *Scheduler {
 	feedChecker := &DefaultFeedChecker{}
-	scheduler := &Scheduler{FeedChecker: feedChecker}
-	scheduler.ScheduleFeeds(database, d, feedChannels, feedURLs)
+	return &Scheduler{FeedChecker: feedChecker}
 }
