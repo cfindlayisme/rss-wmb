@@ -42,15 +42,35 @@ func CheckFeeds(feedChannels []string, feedURLs []string) {
 	}
 }
 
-func ScheduleFeeds(scheduledDuration time.Duration, feedChannels []string, feedURLs []string) {
-	ticker := time.NewTicker(scheduledDuration)
+type FeedChecker interface {
+	CheckFeeds(feedChannels []string, feedURLs []string)
+}
+
+type Scheduler struct {
+	FeedChecker FeedChecker
+}
+
+func (s *Scheduler) ScheduleFeeds(d time.Duration, feedChannels []string, feedURLs []string) {
+	ticker := time.NewTicker(d)
 
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				CheckFeeds(feedChannels, feedURLs)
+				s.FeedChecker.CheckFeeds(feedChannels, feedURLs)
 			}
 		}
 	}()
+}
+
+type DefaultFeedChecker struct{}
+
+func (d *DefaultFeedChecker) CheckFeeds(feedChannels []string, feedURLs []string) {
+	CheckFeeds(feedChannels, feedURLs)
+}
+
+func ScheduleFeeds(d time.Duration, feedChannels []string, feedURLs []string) {
+	feedChecker := &DefaultFeedChecker{}
+	scheduler := &Scheduler{FeedChecker: feedChecker}
+	scheduler.ScheduleFeeds(d, feedChannels, feedURLs)
 }
