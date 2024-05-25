@@ -177,3 +177,173 @@ func TestWriteFeedItemsToDB_Error(t *testing.T) {
 	// Ensure all expectations were met
 	require.NoError(t, mock.ExpectationsWereMet())
 }
+
+func TestCleanDB_Error_Prepare(t *testing.T) {
+	// Create a mock database
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	// Create a DB instance with the mock database
+	database := &db.DB{DB: mockDB}
+
+	// Expect a transaction to begin
+	mock.ExpectBegin()
+
+	// Expect a prepare statement and return an error
+	mock.ExpectPrepare("DELETE FROM FeedItems WHERE Timestamp < datetime\\('now', '-7 days'\\)").WillReturnError(errors.New("database error"))
+
+	// Call CleanDB and check the result
+	err = database.CleanDB()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "database error")
+
+	// Ensure all expectations were met
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestCleanDB_Error_RowsAffected(t *testing.T) {
+	// Create a mock database
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	// Create a DB instance with the mock database
+	database := &db.DB{DB: mockDB}
+
+	// Expect a transaction to be started
+	mock.ExpectBegin()
+
+	// Expect a query to delete the old feed items and return a result
+	mock.ExpectPrepare("DELETE FROM FeedItems WHERE Timestamp < datetime\\('now', '-7 days'\\)")
+	mock.ExpectExec("DELETE FROM FeedItems WHERE Timestamp < datetime\\('now', '-7 days'\\)").WillReturnResult(sqlmock.NewErrorResult(errors.New("database error")))
+
+	// Call CleanDB and check the result
+	err = database.CleanDB()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "database error")
+
+	// Ensure all expectations were met
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestCleanDB_Error_Commit(t *testing.T) {
+	// Create a mock database
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	// Create a DB instance with the mock database
+	database := &db.DB{DB: mockDB}
+
+	// Expect a transaction to be started
+	mock.ExpectBegin()
+
+	// Expect a query to delete the old feed items and return a result
+	mock.ExpectPrepare("DELETE FROM FeedItems WHERE Timestamp < datetime\\('now', '-7 days'\\)")
+	mock.ExpectExec("DELETE FROM FeedItems WHERE Timestamp < datetime\\('now', '-7 days'\\)").WillReturnResult(sqlmock.NewResult(0, 1))
+
+	// Expect the transaction to be committed and return an error
+	mock.ExpectCommit().WillReturnError(errors.New("database error"))
+
+	// Call CleanDB and check the result
+	err = database.CleanDB()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "database error")
+
+	// Ensure all expectations were met
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestWriteFeedItemsToDB_Error_Prepare(t *testing.T) {
+	// Create a mock database
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	// Create a DB instance with the mock database
+	database := &db.DB{DB: mockDB}
+
+	// Expect a query to create a table
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS FeedItems \\(Link TEXT PRIMARY KEY, Printed BOOLEAN, Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP\\)").WillReturnResult(sqlmock.NewResult(0, 0))
+
+	// Expect a transaction to begin
+	mock.ExpectBegin()
+
+	// Expect a prepare statement and return an error
+	mock.ExpectPrepare("INSERT OR IGNORE INTO FeedItems \\(Link, Printed\\) VALUES \\(\\?, \\?\\)").WillReturnError(errors.New("database error"))
+
+	// Call WriteFeedItemsToDB and check the result
+	feedItemsNew := map[string]bool{"http://example.com": true}
+	err = database.WriteFeedItemsToDB(feedItemsNew)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "database error")
+
+	// Ensure all expectations were met
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestWriteFeedItemsToDB_Error_Exec(t *testing.T) {
+	// Create a mock database
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	// Create a DB instance with the mock database
+	database := &db.DB{DB: mockDB}
+
+	// Expect a query to create a table
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS FeedItems \\(Link TEXT PRIMARY KEY, Printed BOOLEAN, Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP\\)").WillReturnResult(sqlmock.NewResult(0, 0))
+
+	// Expect a transaction to begin
+	mock.ExpectBegin()
+
+	// Expect a prepare statement
+	mock.ExpectPrepare("INSERT OR IGNORE INTO FeedItems \\(Link, Printed\\) VALUES \\(\\?, \\?\\)")
+
+	// Expect an exec statement and return an error
+	mock.ExpectExec("INSERT OR IGNORE INTO FeedItems \\(Link, Printed\\) VALUES \\(\\?, \\?\\)").WithArgs("http://example.com", true).WillReturnError(errors.New("database error"))
+
+	// Call WriteFeedItemsToDB and check the result
+	feedItemsNew := map[string]bool{"http://example.com": true}
+	err = database.WriteFeedItemsToDB(feedItemsNew)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "database error")
+
+	// Ensure all expectations were met
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestWriteFeedItemsToDB_Error_Commit(t *testing.T) {
+	// Create a mock database
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	// Create a DB instance with the mock database
+	database := &db.DB{DB: mockDB}
+
+	// Expect a query to create a table
+	mock.ExpectExec("CREATE TABLE IF NOT EXISTS FeedItems \\(Link TEXT PRIMARY KEY, Printed BOOLEAN, Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP\\)").WillReturnResult(sqlmock.NewResult(0, 0))
+
+	// Expect a transaction to begin
+	mock.ExpectBegin()
+
+	// Expect a prepare statement
+	mock.ExpectPrepare("INSERT OR IGNORE INTO FeedItems \\(Link, Printed\\) VALUES \\(\\?, \\?\\)")
+
+	// Expect an exec statement
+	mock.ExpectExec("INSERT OR IGNORE INTO FeedItems \\(Link, Printed\\) VALUES \\(\\?, \\?\\)").WithArgs("http://example.com", true).WillReturnResult(sqlmock.NewResult(1, 1))
+
+	// Expect the transaction to be committed and return an error
+	mock.ExpectCommit().WillReturnError(errors.New("database error"))
+
+	// Call WriteFeedItemsToDB and check the result
+	feedItemsNew := map[string]bool{"http://example.com": true}
+	err = database.WriteFeedItemsToDB(feedItemsNew)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "database error")
+
+	// Ensure all expectations were met
+	require.NoError(t, mock.ExpectationsWereMet())
+}
