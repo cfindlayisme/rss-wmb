@@ -40,65 +40,78 @@ func (db *DB) GetIfLinkPrintedInDB(link string) bool {
 	return false
 }
 
-func (db *DB) CleanDB() {
+func (db *DB) CleanDB() error {
 	tx, err := db.Begin()
 	if err != nil {
-		log.Fatalf("Error beginning transaction: %v", err)
+		log.Printf("Error beginning transaction: %v", err)
+		return err
 	}
 
 	stmt, err := tx.Prepare("DELETE FROM FeedItems WHERE Timestamp < datetime('now', '-7 days')")
 	if err != nil {
-		log.Fatalf("Error preparing statement: %v", err)
+		log.Printf("Error preparing statement: %v", err)
+		return err
 	}
 
 	res, err := stmt.Exec()
 	if err != nil {
-		log.Fatalf("Error executing statement: %v", err)
+		log.Printf("Error executing statement: %v", err)
+		return err
 	}
 
 	rowCount, err := res.RowsAffected()
 	if err != nil {
-		log.Fatalf("Error getting rows affected: %v", err)
+		log.Printf("Error getting rows affected: %v", err)
+		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		log.Fatalf("Error committing transaction: %v", err)
+		log.Printf("Error committing transaction: %v", err)
+		return err
 	}
 
 	log.Printf("Cleaned up %d items older than 7 days from the database", rowCount)
+	return nil
 }
 
-func (db *DB) WriteFeedItemsToDB(feedItemsNew map[string]bool) {
+func (db *DB) WriteFeedItemsToDB(feedItemsNew map[string]bool) error {
 	_, err := db.Exec("CREATE TABLE IF NOT EXISTS FeedItems (Link TEXT PRIMARY KEY, Printed BOOLEAN, Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
 	if err != nil {
-		log.Fatalf("Error creating table: %v", err)
+		log.Printf("Error creating table: %v", err)
+		return err
 	}
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Fatalf("Error beginning transaction: %v", err)
+		log.Printf("Error beginning transaction: %v", err)
+		return err
 	}
 
 	stmt, err := tx.Prepare("INSERT OR IGNORE INTO FeedItems (Link, Printed) VALUES (?, ?)")
 	if err != nil {
-		log.Fatalf("Error preparing statement: %v", err)
+		log.Printf("Error preparing statement: %v", err)
+		return err
 	}
 	defer stmt.Close()
 
 	for link, printed := range feedItemsNew {
 		_, err = stmt.Exec(link, printed)
 		if err != nil {
-			log.Fatalf("Error executing statement: %v", err)
+			log.Printf("Error executing statement: %v", err)
+			return err
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		log.Fatalf("Error committing transaction: %v", err)
+		log.Printf("Error committing transaction: %v", err)
+		return err
 	}
 
 	for link := range feedItemsNew {
 		log.Printf("Added %s to the database\n", link)
 	}
+
+	return nil
 }
