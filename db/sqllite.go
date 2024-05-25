@@ -9,13 +9,19 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func GetIfLinkPrintedInDB(link string) bool {
+type DB struct {
+	*sql.DB
+}
+
+func NewDB() (*DB, error) {
 	db, err := sql.Open("sqlite3", env.GetStateFilePath())
 	if err != nil {
-		return false
+		return nil, err
 	}
-	defer db.Close()
+	return &DB{db}, nil
+}
 
+func (db *DB) GetIfLinkPrintedInDB(link string) bool {
 	rows, err := db.Query("SELECT Link FROM FeedItems WHERE Link = ? AND Printed = 1", link)
 	if err != nil {
 		return false
@@ -34,13 +40,7 @@ func GetIfLinkPrintedInDB(link string) bool {
 	return false
 }
 
-func CleanDB() {
-	db, err := sql.Open("sqlite3", env.GetStateFilePath())
-	if err != nil {
-		log.Fatalf("Error opening SQLite database: %v", err)
-	}
-	defer db.Close()
-
+func (db *DB) CleanDB() {
 	tx, err := db.Begin()
 	if err != nil {
 		log.Fatalf("Error beginning transaction: %v", err)
@@ -69,14 +69,8 @@ func CleanDB() {
 	log.Printf("Cleaned up %d items older than 7 days from the database", rowCount)
 }
 
-func WriteFeedItemsToDB(feedItemsNew map[string]bool) {
-	db, err := sql.Open("sqlite3", env.GetStateFilePath())
-	if err != nil {
-		log.Fatalf("Error opening SQLite database: %v", err)
-	}
-	defer db.Close()
-
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS FeedItems (Link TEXT PRIMARY KEY, Printed BOOLEAN, Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
+func (db *DB) WriteFeedItemsToDB(feedItemsNew map[string]bool) {
+	_, err := db.Exec("CREATE TABLE IF NOT EXISTS FeedItems (Link TEXT PRIMARY KEY, Printed BOOLEAN, Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
 	if err != nil {
 		log.Fatalf("Error creating table: %v", err)
 	}

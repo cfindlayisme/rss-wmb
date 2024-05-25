@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	"github.com/cfindlayisme/rss-wmb/db"
@@ -13,15 +14,21 @@ func main() {
 	feedChannels := env.GetFeedChannels()
 	scheduledDuration := env.GetScheduledMinutes()
 
-	rss.CheckFeeds(feedChannels, feedURLs)
-	rss.ScheduleFeeds(scheduledDuration, feedChannels, feedURLs)
+	// Create a DB
+	database, err := db.NewDB()
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+	}
+
+	rss.CheckFeeds(database, feedChannels, feedURLs)
+	rss.ScheduleFeeds(database, scheduledDuration, feedChannels, feedURLs)
 
 	// Once per day cleanup DB (also at start)
 	go func() {
-		db.CleanDB()
+		database.CleanDB()
 
 		for range time.Tick(24 * time.Hour) {
-			db.CleanDB()
+			database.CleanDB()
 		}
 	}()
 

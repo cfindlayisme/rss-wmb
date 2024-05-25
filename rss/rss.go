@@ -11,7 +11,7 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-func CheckFeeds(feedChannels []string, feedURLs []string) {
+func CheckFeeds(database *db.DB, feedChannels []string, feedURLs []string) {
 	feedItemsNew := make(map[string]bool)
 
 	for n, url := range feedURLs {
@@ -26,7 +26,7 @@ func CheckFeeds(feedChannels []string, feedURLs []string) {
 		updatedFeedItems := make(map[string]bool)
 
 		for _, item := range feed.Items {
-			if !db.GetIfLinkPrintedInDB(item.Link) {
+			if !database.GetIfLinkPrintedInDB(item.Link) {
 				wmb.SendDirectedRSSMessage(env.GetWMBURL(), item, feedChannels, n)
 
 				// Mark the feed item as printed
@@ -38,26 +38,26 @@ func CheckFeeds(feedChannels []string, feedURLs []string) {
 	}
 
 	if len(feedItemsNew) != 0 {
-		db.WriteFeedItemsToDB(feedItemsNew)
+		database.WriteFeedItemsToDB(feedItemsNew)
 	}
 }
 
 type FeedChecker interface {
-	CheckFeeds(feedChannels []string, feedURLs []string)
+	CheckFeeds(database *db.DB, feedChannels []string, feedURLs []string)
 }
 
 type Scheduler struct {
 	FeedChecker FeedChecker
 }
 
-func (s *Scheduler) ScheduleFeeds(d time.Duration, feedChannels []string, feedURLs []string) {
+func (s *Scheduler) ScheduleFeeds(database *db.DB, d time.Duration, feedChannels []string, feedURLs []string) {
 	ticker := time.NewTicker(d)
 
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				s.FeedChecker.CheckFeeds(feedChannels, feedURLs)
+				s.FeedChecker.CheckFeeds(database, feedChannels, feedURLs)
 			}
 		}
 	}()
@@ -65,12 +65,12 @@ func (s *Scheduler) ScheduleFeeds(d time.Duration, feedChannels []string, feedUR
 
 type DefaultFeedChecker struct{}
 
-func (d *DefaultFeedChecker) CheckFeeds(feedChannels []string, feedURLs []string) {
-	CheckFeeds(feedChannels, feedURLs)
+func (d *DefaultFeedChecker) CheckFeeds(database *db.DB, feedChannels []string, feedURLs []string) {
+	CheckFeeds(database, feedChannels, feedURLs)
 }
 
-func ScheduleFeeds(d time.Duration, feedChannels []string, feedURLs []string) {
+func ScheduleFeeds(database *db.DB, d time.Duration, feedChannels []string, feedURLs []string) {
 	feedChecker := &DefaultFeedChecker{}
 	scheduler := &Scheduler{FeedChecker: feedChecker}
-	scheduler.ScheduleFeeds(d, feedChannels, feedURLs)
+	scheduler.ScheduleFeeds(database, d, feedChannels, feedURLs)
 }

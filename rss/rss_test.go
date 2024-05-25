@@ -4,18 +4,21 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cfindlayisme/rss-wmb/db"
 	"github.com/cfindlayisme/rss-wmb/rss"
 	"github.com/stretchr/testify/require"
 )
 
 type mockFeedChecker struct {
 	called   bool
+	database *db.DB
 	channels []string
 	urls     []string
 }
 
-func (m *mockFeedChecker) CheckFeeds(feedChannels []string, feedURLs []string) {
+func (m *mockFeedChecker) CheckFeeds(database *db.DB, feedChannels []string, feedURLs []string) {
 	m.called = true
+	m.database = database
 	m.channels = feedChannels
 	m.urls = feedURLs
 }
@@ -26,7 +29,7 @@ func TestScheduleFeeds(t *testing.T) {
 
 	channels := []string{"channel"}
 	urls := []string{"url"}
-	scheduler.ScheduleFeeds(time.Millisecond, channels, urls)
+	scheduler.ScheduleFeeds(nil, time.Millisecond, channels, urls)
 
 	time.Sleep(10 * time.Millisecond)
 
@@ -34,6 +37,7 @@ func TestScheduleFeeds(t *testing.T) {
 	require.True(t, mock.called)
 
 	// Test that CheckFeeds was called with the correct arguments
+	require.Nil(t, mock.database)
 	require.Equal(t, channels, mock.channels)
 	require.Equal(t, urls, mock.urls)
 }
@@ -42,7 +46,7 @@ func TestScheduleFeedsNotCalledBeforeDuration(t *testing.T) {
 	mock := &mockFeedChecker{}
 	scheduler := &rss.Scheduler{FeedChecker: mock}
 
-	scheduler.ScheduleFeeds(time.Second, []string{"channel"}, []string{"url"})
+	scheduler.ScheduleFeeds(nil, time.Second, []string{"channel"}, []string{"url"})
 
 	time.Sleep(500 * time.Millisecond)
 
@@ -54,7 +58,7 @@ func TestScheduleFeedsCalledRepeatedly(t *testing.T) {
 	mock := &mockFeedChecker{}
 	scheduler := &rss.Scheduler{FeedChecker: mock}
 
-	scheduler.ScheduleFeeds(time.Millisecond, []string{"channel"}, []string{"url"})
+	scheduler.ScheduleFeeds(nil, time.Millisecond, []string{"channel"}, []string{"url"})
 
 	time.Sleep(10 * time.Millisecond)
 
