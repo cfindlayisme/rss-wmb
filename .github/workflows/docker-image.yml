@@ -152,7 +152,6 @@ jobs:
 
     - name: Restart Deployment
       run: |
-        kubectl -n staging rollout restart deployment rss-wmb
         kubectl -n production rollout restart deployment rss-wmb
 
     - uses: actions/checkout@v4
