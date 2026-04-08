@@ -44,6 +44,8 @@ github.com/mattn/go-sqlite3 v1.14.40 h1:f7+saIsbq4EF86mUqe0uiecQOJYMOdfi5uATADmU
 github.com/mattn/go-sqlite3 v1.14.40/go.mod h1:pjEuOr8IwzLJP2MfGeTb0A35jauH+C2kbHKBr7yXKVQ=
 github.com/mattn/go-sqlite3 v1.14.41 h1:8p7Pwz5NHkEbWSqc/ygU4CBGubhFFkpgP9KwcdkAHNA=
 github.com/mattn/go-sqlite3 v1.14.41/go.mod h1:pjEuOr8IwzLJP2MfGeTb0A35jauH+C2kbHKBr7yXKVQ=
+github.com/mattn/go-sqlite3 v1.14.42 h1:MigqEP4ZmHw3aIdIT7T+9TLa90Z6smwcthx+Azv4Cgo=
+github.com/mattn/go-sqlite3 v1.14.42/go.mod h1:pjEuOr8IwzLJP2MfGeTb0A35jauH+C2kbHKBr7yXKVQ=
 github.com/mmcdole/gofeed v1.3.0 h1:5yn+HeqlcvjMeAI4gu6T+crm7d0anY85+M+v6fIFNG4=
 github.com/mmcdole/gofeed v1.3.0/go.mod h1:9TGv2LcJhdXePDzxiuMnukhV2/zb6VtnZt1mS+SjkLE=
 github.com/mmcdole/goxpp v1.1.1 h1:RGIX+D6iQRIunGHrKqnA2+700XMCnNv0bAOOv5MUhx8=
